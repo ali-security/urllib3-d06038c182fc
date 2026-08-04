@@ -1,8 +1,9 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
 
-permissions: "read-all"
+permissions: read-all
 
 defaults:
   run:
@@ -21,7 +22,7 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
       - name: Check packages
         # wheel==0.40.0 matches the released wheel's `Generator: bdist_wheel (0.40.0)`;
         # the time-machine index resolves twine/rstcheck to the versions that existed
@@ -55,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10"]
+        python-version: ['3.10']
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
@@ -90,30 +91,30 @@ jobs:
     # upstream's matrix, and the coverage-data artifact it downloads is no longer
     # produced. Skipped rather than left red; not an expected release artifact.
     if: false
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v2
-      - name: "Use latest Python so it understands all syntax"
+      - name: Use latest Python so it understands all syntax
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
-      - name: "Install coverage"
-        run: "python -m pip install --upgrade coverage"
+      - name: Install coverage
+        run: python -m pip install --upgrade coverage
 
-      - name: "Download coverage data"
+      - name: Download coverage data
         uses: actions/download-artifact@v2
         with:
           name: coverage-data
 
-      - name: "Combine & check coverage"
+      - name: Combine & check coverage
         run: |
           python -m coverage combine
           python -m coverage html --skip-covered --skip-empty
           python -m coverage report --ignore-errors --show-missing --fail-under=100
 
-      - name: "Upload report if check failed"
+      - name: Upload report if check failed
         uses: actions/upload-artifact@v2
         with:
           name: coverage-report
